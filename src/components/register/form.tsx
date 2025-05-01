@@ -2,12 +2,9 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { AlertCircle } from "lucide-react";
 import {
   Select,
   SelectItem,
@@ -16,45 +13,41 @@ import {
   SelectContent,
 } from "@/components/ui/select";
 import Image from "next/image";
+import { signUpAction } from "@/actions/auth/sign-up-action";
+import { signUpSchema, SignUpFormData } from "@/schemas/sign-up-schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Form, useForm } from "react-hook-form";
+import { useAction } from "next-safe-action/hooks";
 
 export function RegisterForm() {
   const searchParams = useSearchParams();
 
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
 
   const initialRole = searchParams.get("role") as "lead" | "broker" | null;
   const [role, setRole] = useState<"lead" | "broker">(initialRole || "lead");
 
   const router = useRouter();
 
-  async function onSubmit(formData: FormData) {
-    setIsLoading(true);
-    setError(null);
-    setFieldErrors({});
+  const { execute, isPending } = useAction(signUpAction);
 
-    // Add the role to the form data
-    formData.append("role", role);
+  const form = useForm<SignUpFormData>({
+    resolver: zodResolver(signUpSchema),
+    mode: "onChange",
+    defaultValues: {
+      email: "",
+      password: "",
+      phone: "",
+      name: "",
+      lastName: "",
+      termsAccepted: false,
+    },
+  });
 
-    // TODO: Supabase auth integration in progress
-    //   try {
-    //     const result = await signUp(formData);
+  async function onSubmit(data: SignUpFormData) {
+    const result = await execute(data);
 
-    //     if (result.error) {
-    //       setError(result.error);
-    //       if (result.fieldErrors) {
-    //         setFieldErrors(result.fieldErrors);
-    //       }
-    //       setIsLoading(false);
-    //       return;
-    //     }
-
-    //     router.push("/login?registered=true");
-    //   } catch (err) {
-    //     setError("An unexpected error occurred");
-    //     setIsLoading(false);
-    //   }
+    console.log(result);
   }
 
   const toggleRole = () => {
@@ -92,116 +85,100 @@ export function RegisterForm() {
           </p>
         </div>
 
-        {error && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        <form action={onSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="firstName">Nome</Label>
-              <Input id="firstName" name="firstName" required />
-              {fieldErrors.firstName && (
-                <p className="text-sm text-red-500">{fieldErrors.firstName[0]}</p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="lastName">Sobrenome</Label>
-              <Input id="lastName" name="lastName" required />
-              {fieldErrors.lastName && (
-                <p className="text-sm text-red-500">{fieldErrors.lastName[0]}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" name="email" type="email" required />
-            {fieldErrors.email && <p className="text-sm text-red-500">{fieldErrors.email[0]}</p>}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="phone">Telefone</Label>
-            <Input id="phone" name="phone" type="tel" />
-            {fieldErrors.phone && <p className="text-sm text-red-500">{fieldErrors.phone[0]}</p>}
-          </div>
-
-          {/* Conditional fields based on role */}
-          {role === "broker" ? (
-            <div className="space-y-2">
-              <Label htmlFor="creciNumber">Número do CRECI</Label>
-              <Input
-                id="creciNumber"
-                name="creciNumber"
-                placeholder="Seu número de registro no CRECI"
-              />
-            </div>
-          ) : (
-            <>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="propertyPurpose">Propósito da propriedade</Label>
-                <Select name="propertyPurpose">
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selecione o propósito" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="residential">Residencial</SelectItem>
-                    <SelectItem value="commercial">Comercial</SelectItem>
-                    <SelectItem value="investment">Investimento</SelectItem>
-                    <SelectItem value="vacation">Casa de férias</SelectItem>
-                    <SelectItem value="other">Outro</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="firstName">Nome</Label>
+                <Input id="firstName" name="firstName" required />
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="city">Cidade</Label>
+                <Label htmlFor="lastName">Sobrenome</Label>
+                <Input id="lastName" name="lastName" required />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" name="email" type="email" required />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phone">Telefone</Label>
+              <Input id="phone" name="phone" type="tel" />
+            </div>
+
+            {/* Conditional fields based on role */}
+            {role === "broker" ? (
+              <div className="space-y-2">
+                <Label htmlFor="creciNumber">Número do CRECI</Label>
                 <Input
-                  id="city"
-                  name="city"
-                  placeholder="Onde você está procurando a propriedade?"
+                  id="creciNumber"
+                  name="creciNumber"
+                  placeholder="Seu número de registro no CRECI"
                 />
               </div>
-
-              <div className="grid grid-cols-2 gap-4">
+            ) : (
+              <>
                 <div className="space-y-2">
-                  <Label htmlFor="minValue">Orçamento mínimo</Label>
-                  <Input id="minValue" name="minValue" type="number" placeholder="Valor mínimo" />
+                  <Label htmlFor="propertyPurpose">Propósito da propriedade</Label>
+                  <Select name="propertyPurpose">
+                    <SelectTrigger>
+                      <SelectValue placeholder="Selecione o propósito" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="residential">Residencial</SelectItem>
+                      <SelectItem value="commercial">Comercial</SelectItem>
+                      <SelectItem value="investment">Investimento</SelectItem>
+                      <SelectItem value="vacation">Casa de férias</SelectItem>
+                      <SelectItem value="other">Outro</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="maxValue">Orçamento máximo</Label>
-                  <Input id="maxValue" name="maxValue" type="number" placeholder="Valor máximo" />
-                </div>
-              </div>
-            </>
-          )}
 
-          <div className="space-y-2">
-            <Label htmlFor="password">Senha</Label>
-            <Input id="password" name="password" type="password" required />
-            {fieldErrors.password && (
-              <p className="text-sm text-red-500">{fieldErrors.password[0]}</p>
+                <div className="space-y-2">
+                  <Label htmlFor="city">Cidade</Label>
+                  <Input
+                    id="city"
+                    name="city"
+                    placeholder="Onde você está procurando a propriedade?"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="minValue">Orçamento mínimo</Label>
+                    <Input id="minValue" name="minValue" type="number" placeholder="Valor mínimo" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="maxValue">Orçamento máximo</Label>
+                    <Input id="maxValue" name="maxValue" type="number" placeholder="Valor máximo" />
+                  </div>
+                </div>
+              </>
             )}
-          </div>
 
-          <Button type="submit" className="bg-primary w-full" disabled={isLoading}>
-            {isLoading ? "Criando conta..." : "Criar conta"}
-          </Button>
+            <div className="space-y-2">
+              <Label htmlFor="password">Senha</Label>
+              <Input id="password" name="password" type="password" required />
+            </div>
 
-          <div className="mt-4 space-y-2 text-center">
-            <div>
-              <Button variant="link" onClick={toggleRole} className="text-secondary">
-                {role === "broker" ? "Estou buscando um imóvel" : "Sou um corretor"}
+            <Button type="submit" className="bg-primary w-full" disabled={isLoading}>
+              {isLoading ? "Criando conta..." : "Criar conta"}
+            </Button>
+
+            <div className="mt-4 space-y-2 text-center">
+              <div>
+                <Button variant="link" onClick={toggleRole} className="text-secondary">
+                  {role === "broker" ? "Estou buscando um imóvel" : "Sou um corretor"}
+                </Button>
+              </div>
+              <Button variant="link" onClick={() => router.push("/login")} className="text-primary">
+                Já tem uma conta? Faça login
               </Button>
             </div>
-            <Button variant="link" onClick={() => router.push("/login")} className="text-primary">
-              Já tem uma conta? Faça login
-            </Button>
-          </div>
-        </form>
+          </form>
+        </Form>
       </div>
     </div>
   );
