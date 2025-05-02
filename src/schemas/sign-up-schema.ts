@@ -7,6 +7,7 @@ const signUpSchema = z.object({
   name: z.string().min(1),
   lastName: z.string().min(1),
   termsAccepted: z.boolean(),
+  // role: z.enum(["lead", "broker", "admin"]),
 });
 
 export { signUpSchema };

@@ -1,3 +1,5 @@
+"use server";
+
 import { createServerClient } from "@/lib/supabase/server";
 import { actionClient, actionError } from "../safe-action";
 import { appConfig } from "@/config/env";
@@ -13,6 +15,7 @@ export const signUpAction = actionClient
   .action(async ({ parsedInput }) => {
     try {
       const supabase = await createServerClient();
+
       const { error } = await supabase.auth.signUp({
         email: parsedInput.email,
         password: parsedInput.password,
@@ -20,8 +23,8 @@ export const signUpAction = actionClient
         options: {
           emailRedirectTo: paths.auth.callback.getHref(appConfig.url),
           data: {
-            display_name: parsedInput.displayName,
-            marketing_opt_in: parsedInput.marketingOptIn,
+            name: parsedInput.name,
+            last_name: parsedInput.lastName,
             terms_accepted: parsedInput.termsAccepted,
           },
         },

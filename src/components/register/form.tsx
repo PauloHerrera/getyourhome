@@ -3,49 +3,63 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-} from "@/components/ui/select";
 import Image from "next/image";
 import { signUpAction } from "@/actions/auth/sign-up-action";
 import { signUpSchema, SignUpFormData } from "@/schemas/sign-up-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Form, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useAction } from "next-safe-action/hooks";
-
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 export function RegisterForm() {
   const searchParams = useSearchParams();
-
-  const [isLoading, setIsLoading] = useState(false);
-
   const initialRole = searchParams.get("role") as "lead" | "broker" | null;
   const [role, setRole] = useState<"lead" | "broker">(initialRole || "lead");
 
   const router = useRouter();
 
-  const { execute, isPending } = useAction(signUpAction);
+  const { execute: signUp, status: isPending } = useAction(signUpAction, {
+    onSuccess: () => {
+      router.push("/login?registered=true");
+    },
+    onError: (error) => {
+      console.error(error);
+    },
+  });
+
+  const isLoading = isPending === "executing";
 
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
-    mode: "onChange",
     defaultValues: {
-      email: "",
-      password: "",
-      phone: "",
-      name: "",
-      lastName: "",
-      termsAccepted: false,
+      email: "paul.s.s.s@gmail.com",
+      password: "12345678",
+      phone: "11999999999",
+      name: "Paulo",
+      lastName: "Silva",
     },
   });
 
   async function onSubmit(data: SignUpFormData) {
-    const result = await execute(data);
+    const result = await signUp({
+      ...data,
+      // role: role,
+    });
 
     console.log(result);
   }
@@ -88,27 +102,70 @@ export function RegisterForm() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
+              {/* <div className="space-y-2">
                 <Label htmlFor="firstName">Nome</Label>
                 <Input id="firstName" name="firstName" required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Sobrenome</Label>
-                <Input id="lastName" name="lastName" required />
-              </div>
+              </div> */}
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nome</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Nome" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Sobrenome</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Sobrenome" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" name="email" type="email" required />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input type="email" required {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Telefone</Label>
-              <Input id="phone" name="phone" type="tel" />
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Telefone</FormLabel>
+                    <FormControl>
+                      <Input type="tel" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
-            {/* Conditional fields based on role */}
             {role === "broker" ? (
               <div className="space-y-2">
                 <Label htmlFor="creciNumber">Número do CRECI</Label>
@@ -159,26 +216,70 @@ export function RegisterForm() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
-              <Input id="password" name="password" type="password" required />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Senha</FormLabel>
+                    <FormControl>
+                      <Input id="password" type="password" required {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
-            <Button type="submit" className="bg-primary w-full" disabled={isLoading}>
+            <div className="space-y-2">
+              <FormField
+                control={form.control}
+                name="termsAccepted"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center space-y-0 space-x-2">
+                    <FormControl>
+                      <input
+                        type="checkbox"
+                        id="termsAccepted"
+                        checked={field.value}
+                        onChange={field.onChange}
+                        className="mr-2"
+                      />
+                    </FormControl>
+                    <FormLabel htmlFor="termsAccepted" className="mb-0 cursor-pointer">
+                      Eu aceito os{" "}
+                      <a href="/terms" target="_blank" className="text-primary underline">
+                        Termos de Uso
+                      </a>
+                    </FormLabel>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <Button
+              type="submit"
+              className="bg-primary w-full"
+              disabled={
+                isLoading || !form.formState.isValid || form.getValues("termsAccepted") === false
+              }
+            >
               {isLoading ? "Criando conta..." : "Criar conta"}
             </Button>
-
-            <div className="mt-4 space-y-2 text-center">
-              <div>
-                <Button variant="link" onClick={toggleRole} className="text-secondary">
-                  {role === "broker" ? "Estou buscando um imóvel" : "Sou um corretor"}
-                </Button>
-              </div>
-              <Button variant="link" onClick={() => router.push("/login")} className="text-primary">
-                Já tem uma conta? Faça login
-              </Button>
-            </div>
           </form>
         </Form>
+
+        <div className="mt-4 space-y-2 text-center">
+          <div>
+            <Button variant="link" onClick={toggleRole} className="text-secondary">
+              {role === "broker" ? "Estou buscando um imóvel" : "Sou um corretor"}
+            </Button>
+          </div>
+          <Button variant="link" onClick={() => router.push("/login")} className="text-primary">
+            Já tem uma conta? Faça login
+          </Button>
+        </div>
       </div>
     </div>
   );
