@@ -10,14 +10,14 @@ const authPaths = {
   },
   signIn: {
     getHref: (redirectTo?: string | null | undefined) =>
-      `/sign-in${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ""}`,
+      `/login${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ""}`,
   },
   signOut: {
     getHref: () => "/sign-out",
   },
   signUp: {
     getHref: (redirectTo?: string | null | undefined) =>
-      `/sign-up${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ""}`,
+      `/register${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ""}`,
   },
   terms: {
     getHref: () => "/terms",
@@ -28,6 +28,11 @@ const authPaths = {
   },
 } as const;
 
+const dashboardPaths = {
+  getHref: () => "/dashboard",
+} as const;
+
 export const paths = {
   auth: authPaths,
+  dashboard: dashboardPaths,
 } as const;

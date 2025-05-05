@@ -26,6 +26,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { paths } from "@/config/paths";
+
 export function RegisterForm() {
   const searchParams = useSearchParams();
   const initialRole = searchParams.get("role") as "lead" | "broker" | null;
@@ -35,7 +37,7 @@ export function RegisterForm() {
 
   const { execute: signUp, status: isPending } = useAction(signUpAction, {
     onSuccess: () => {
-      router.push("/login?registered=true");
+      router.push(paths.auth.signIn.getHref("?registered=true"));
     },
     onError: (error) => {
       console.error(error);

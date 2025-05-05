@@ -39,7 +39,7 @@ export const Hero = () => {
             </div>
           </div>
           <div className="flex items-center justify-center">
-            <Image src="/hero-family-home.png" alt="Hero Image" width={500} height={500} />
+            <Image src="/hero-family-home.png" alt="Hero Image" width={700} height={750} />
           </div>
         </div>
       </div>

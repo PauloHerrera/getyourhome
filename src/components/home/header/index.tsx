@@ -1,3 +1,4 @@
+import { paths } from "@/config/paths";
 import { Building } from "lucide-react";
 import Link from "next/link";
 
@@ -10,16 +11,16 @@ export const Header = () => {
       </Link>
       <nav className="flex gap-4 sm:gap-6">
         <Link
-          href="/login"
+          href={paths.auth.signIn.getHref()}
           className="hover:text-primary text-sm font-medium underline-offset-4 hover:underline"
         >
-          Sign In
+          Login
         </Link>
         <Link
-          href="/register"
+          href={paths.auth.signUp.getHref()}
           className="hover:text-primary text-sm font-medium underline-offset-4 hover:underline"
         >
-          Register
+          Cadastre-se
         </Link>
       </nav>
     </header>
