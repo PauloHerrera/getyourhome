@@ -1,20 +1,19 @@
 "use server";
 
-import { createServerClient } from "@/lib/supabase/server";
+import { paths } from "@/config/paths";
+import { createClient } from "@/lib/supabase/server";
 import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function signOutAction() {
-  const supabase = await createServerClient();
+  const supabase = await createClient();
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  await supabase.auth.signOut({
-    scope: "local",
-  });
+  await supabase.auth.signOut();
 
-  revalidateTag(`user_${session?.user?.id}`);
+  revalidateTag(`user_${user?.id}`);
 
-  return redirect("/");
+  return redirect(paths.auth.signIn.getHref());
 }

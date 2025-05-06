@@ -9,5 +9,5 @@ export default async function DashboardPage() {
     redirect(paths.auth.signIn.getHref());
   }
 
-  return <div>Dashboard</div>;
+  return <div>Dashboard for: ${user.role}</div>;
 }

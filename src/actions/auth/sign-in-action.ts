@@ -1,6 +1,8 @@
+"use server";
+
 import { signInSchema } from "@/schemas/sign-in-schema";
 import { actionClient, actionError, actionSuccess } from "../safe-action";
-import { createServerClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 export const signInAction = actionClient
   .metadata({
@@ -9,7 +11,7 @@ export const signInAction = actionClient
   .schema(signInSchema)
   .action(async ({ parsedInput }) => {
     try {
-      const supabase = await createServerClient();
+      const supabase = await createClient();
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email: parsedInput.email,
@@ -19,7 +21,6 @@ export const signInAction = actionClient
       if (error) {
         return actionError("Error signing in", error.message);
       }
-      console.log("333 data", data);
 
       if (!data) {
         return actionError("User not found", "User not found");

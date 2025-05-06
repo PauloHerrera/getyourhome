@@ -1,6 +1,6 @@
 "use server";
 
-import { createServerClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { actionClient, actionError } from "../safe-action";
 import { appConfig } from "@/config/env";
 import { paths } from "@/config/paths";
@@ -14,7 +14,7 @@ export const signUpAction = actionClient
   .schema(signUpSchema)
   .action(async ({ parsedInput }) => {
     try {
-      const supabase = await createServerClient();
+      const supabase = await createClient();
 
       const { data: userData, error } = await supabase.auth.signUp({
         email: parsedInput.email,
