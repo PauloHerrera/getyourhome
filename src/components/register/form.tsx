@@ -49,18 +49,23 @@ export function RegisterForm() {
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
-      email: "paul.s.s.s@gmail.com",
-      password: "12345678",
-      phone: "11999999999",
       name: "Paulo",
       lastName: "Silva",
+      email: "paul.s.s.s@gmail.com",
+      phone: "11999999999",
+      password: "12345678",
+      role: initialRole || "lead",
+      termsAccepted: false,
+      transactionType: "sale",
+      licenseNumber: "",
+      city: "",
     },
   });
 
   async function onSubmit(data: SignUpFormData) {
     const result = await signUp({
       ...data,
-      // role: role,
+      role: role,
     });
 
     console.log(result);
@@ -104,10 +109,6 @@ export function RegisterForm() {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              {/* <div className="space-y-2">
-                <Label htmlFor="firstName">Nome</Label>
-                <Input id="firstName" name="firstName" required />
-              </div> */}
               <FormField
                 control={form.control}
                 name="name"
@@ -179,28 +180,45 @@ export function RegisterForm() {
               </div>
             ) : (
               <>
-                <div className="space-y-2">
-                  <Label htmlFor="propertyPurpose">Propósito da propriedade</Label>
-                  <Select name="propertyPurpose">
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione o propósito" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="residential">Residencial</SelectItem>
-                      <SelectItem value="commercial">Comercial</SelectItem>
-                      <SelectItem value="investment">Investimento</SelectItem>
-                      <SelectItem value="vacation">Casa de férias</SelectItem>
-                      <SelectItem value="other">Outro</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="transactionType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tipo de transação</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Selecione o propósito" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="sale">Compra</SelectItem>
+                            <SelectItem value="rent">Aluguel</SelectItem>
+                            <SelectItem value="sale_rent">Compra ou Aluguel</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <div className="space-y-2">
-                  <Label htmlFor="city">Cidade</Label>
-                  <Input
-                    id="city"
+                  <FormField
+                    control={form.control}
                     name="city"
-                    placeholder="Onde você está procurando a propriedade?"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Cidade</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Onde você está procurando a propriedade?"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </div>
 

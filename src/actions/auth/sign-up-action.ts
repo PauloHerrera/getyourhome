@@ -16,19 +16,38 @@ export const signUpAction = actionClient
     try {
       const supabase = await createServerClient();
 
-      const { error } = await supabase.auth.signUp({
+      const { data: userData, error } = await supabase.auth.signUp({
         email: parsedInput.email,
-        password: parsedInput.password,
         phone: parsedInput.phone,
+        password: parsedInput.password,
         options: {
           emailRedirectTo: paths.auth.callback.getHref(appConfig.url),
           data: {
             name: parsedInput.name,
             last_name: parsedInput.lastName,
+            role: parsedInput.role || "lead",
             terms_accepted: parsedInput.termsAccepted,
           },
         },
       });
+
+      // If the user is a broker, create a broker record
+      if (parsedInput.role === "broker") {
+        await supabase.from("brokers").insert({
+          id: userData.user?.id,
+          license_number: parsedInput.licenseNumber || "",
+        });
+      }
+
+      // If the user is a lead, create a basic property ad
+      if (parsedInput.role === "lead") {
+        await supabase.from("property_ads").insert({
+          lead_id: userData.user?.id,
+          transaction_type: parsedInput.transactionType,
+          city: parsedInput.city,
+          status: "pending",
+        });
+      }
 
       if (error) {
         return actionError("Erro ao criar usuário", error.message);
