@@ -4,7 +4,7 @@ const signUpSchema = z.object({
   name: z.string().min(1),
   lastName: z.string().min(1),
   email: z.string().email(),
-  password: z.string().min(8),
+  password: z.string().min(6),
   phone: z.string().min(11),
   role: z.enum(["lead", "broker", "admin"]),
   termsAccepted: z.boolean(),

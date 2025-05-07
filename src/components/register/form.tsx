@@ -49,11 +49,11 @@ export function RegisterForm() {
   const form = useForm<SignUpFormData>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
-      name: "Paulo",
-      lastName: "Silva",
-      email: "paul.s.s.s@gmail.com",
-      phone: "11999999999",
-      password: "12345678",
+      name: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      password: "",
       role: initialRole || "lead",
       termsAccepted: false,
       transactionType: "sale",

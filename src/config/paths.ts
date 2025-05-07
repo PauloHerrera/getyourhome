@@ -30,6 +30,9 @@ const authPaths = {
 
 const dashboardPaths = {
   getHref: () => "/dashboard",
+  ads: {
+    getHref: () => "/dashboard/ads",
+  },
 } as const;
 
 export const paths = {

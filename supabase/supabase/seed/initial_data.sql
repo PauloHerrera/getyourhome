@@ -1,5 +1,3 @@
-BEGIN;
-
 -- Insert default property types
 INSERT INTO property_types (name, description) VALUES 
   ('Apartamento', 'Unidade residencial em um edifício com várias unidades'),
@@ -22,5 +20,3 @@ INSERT INTO property_amenities (name) VALUES
   ('Churrasqueira'),
   ('Garagem'),
   ('Outros');
-
-COMMIT;
