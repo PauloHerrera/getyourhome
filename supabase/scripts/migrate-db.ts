@@ -1,53 +1,33 @@
-// scripts/migrate-db.ts
+// scripts/migrate-db-env.ts
 import { execSync } from "child_process";
-import fs from "fs";
 
-// Run migrations
 async function main() {
   try {
-    // Only run migrations in production environment or when forced
-    if (process.env.VERCEL_ENV === "production" || process.env.FORCE_MIGRATION === "true") {
-      console.log("Running Supabase migrations...");
+    console.log("Running Supabase migrations with environment variables...");
 
-      // Ensure we have the required environment variables
-      const projectRef = process.env.SUPABASE_PROJECT_REF;
-      const accessToken = process.env.SUPABASE_ACCESS_TOKEN;
+    const projectRef = process.env.SUPABASE_PROJECT_REF;
+    const accessToken = process.env.SUPABASE_ACCESS_TOKEN;
 
-      if (!projectRef || !accessToken) {
-        throw new Error(
-          "Missing required environment variables: SUPABASE_PROJECT_REF or SUPABASE_ACCESS_TOKEN"
-        );
-      }
-
-      // Create a temporary .supabase config file with credentials
-      const supabaseConfig = {
-        access_token: accessToken,
-        project_id: projectRef,
-      };
-
-      // Write config to a temporary file
-      fs.writeFileSync(".supabase.json", JSON.stringify(supabaseConfig, null, 2));
-
-      // Check if the project is already linked
-      execSync(`bunx supabase status`, { stdio: "inherit" });
-
-      console.log("Linking to Supabase project...");
-
-      // Link to your Supabase project
-      execSync(`bunx supabase link --project-ref ${projectRef}`, { stdio: "inherit" });
-
-      console.log("Pushing migrations to Supabase project...");
-
-      // Push migrations to the linked project
-      execSync("bunx supabase db push", { stdio: "inherit" });
-
-      // Clean up
-      fs.unlinkSync(".supabase.json");
-
-      console.log("Migrations completed successfully!");
-    } else {
-      console.log("Skipping migrations in non-production environment");
+    if (!projectRef || !accessToken) {
+      throw new Error("Missing required environment variables");
     }
+
+    // Set environment variables for the Supabase CLI
+    process.env.SUPABASE_ACCESS_TOKEN = accessToken;
+    process.env.SUPABASE_PROJECT_ID = projectRef;
+
+    // Run db push directly
+    console.log("Pushing migrations...");
+    execSync("bunx supabase db push", {
+      stdio: "inherit",
+      env: {
+        ...process.env,
+        SUPABASE_ACCESS_TOKEN: accessToken,
+        SUPABASE_PROJECT_ID: projectRef,
+      },
+    });
+
+    console.log("Migrations completed successfully!");
   } catch (error) {
     console.error("Migration failed:", error);
     process.exit(1);
