@@ -13,8 +13,6 @@ async function main() {
       const projectRef = process.env.SUPABASE_PROJECT_REF;
       const accessToken = process.env.SUPABASE_ACCESS_TOKEN;
 
-      console.log("projectRef", projectRef);
-
       if (!projectRef || !accessToken) {
         throw new Error(
           "Missing required environment variables: SUPABASE_PROJECT_REF or SUPABASE_ACCESS_TOKEN"
@@ -27,10 +25,11 @@ async function main() {
         project_id: projectRef,
       };
 
-      console.log("supabaseConfig", supabaseConfig);
-
       // Write config to a temporary file
       fs.writeFileSync(".supabase.json", JSON.stringify(supabaseConfig, null, 2));
+
+      // Check if the project is already linked
+      execSync(`bunx supabase status`, { stdio: "inherit" });
 
       console.log("Linking to Supabase project...");
 
