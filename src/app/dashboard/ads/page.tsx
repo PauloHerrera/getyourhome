@@ -1,4 +1,3 @@
-import AdsForm from "@/components/dashboard/ads/ads-form";
 import { paths } from "@/config/paths";
 import { getCurrentUser } from "@/lib/auth";
 import { redirect } from "next/navigation";
@@ -11,14 +10,13 @@ export default async function AdsPage() {
   }
 
   //LEADS
-  if (user.role !== "broker") {
+  if (user.role !== "leads") {
     redirect(paths.dashboard.getHref());
   }
 
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="mb-6 text-3xl font-bold">Create New Property Request</h1>
-      <AdsForm />
+      <h1 className="mb-6 text-3xl font-bold">My Property Ads</h1>
     </div>
   );
 }
