@@ -19,8 +19,8 @@ export const propertyAdSchema = z.object({
   neighborhood: z.string().optional().nullable(),
   city: z.string().optional().nullable(),
   uf: z.string().optional().nullable(),
-  mandatoryAmenities: z.array(z.string()).optional().nullable(),
-  desiredAmenities: z.array(z.string()).optional().nullable(),
+  mandatoryAmenities: z.object({}).nullable(),
+  desiredAmenities: z.object({}).nullable(),
   observations: z.string().optional().nullable(),
 });
 

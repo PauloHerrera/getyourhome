@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "migrate": "bunx supabase migration up"
+    "migrate": "bunx supabase migration up",
+    "db:types:supabase": "bunx supabase gen types typescript --local --schema public > ../src/lib/supabase/types/db.types.ts",
+    "db:types:better": "bunx better-supabase-types --singular --enumAsType --enumPascalCase -i src/lib/supabase/types/db.types.ts -o src/lib/supabase/types/db.types.ts",
+    "db:types": "bun run db:types:supabase && bun run db:types:better"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",

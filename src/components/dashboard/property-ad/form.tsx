@@ -15,37 +15,40 @@ import { CardContent } from "@/components/ui/card";
 import FeaturesStep from "./form-steps/features";
 import AmenitiesStep from "./form-steps/amenities";
 import LocationStep from "./form-steps/location";
+import { PropertyAd, PropertyType } from "@/lib/supabase/types/db.types";
 interface PropertyAdsFormProps {
-  initialData?: PropertyAdFormData;
+  initialData?: PropertyAd;
+  propertyTypes: PropertyType[];
 }
 
-export default function PropertyAdsForm({ initialData }: PropertyAdsFormProps) {
+export default function PropertyAdsForm({ initialData, propertyTypes }: PropertyAdsFormProps) {
   const [activeStep, setActiveStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<PropertyAdFormData>({
     resolver: zodResolver(propertyAdSchema),
     defaultValues: {
-      lead_id: "",
-      status: "pending" as const,
-      transaction_type: "sale" as const,
-      property_type_id: "",
-      acquisition_purpose: null,
-      minBudget: 0,
-      maxBudget: 0,
-      minArea: 0,
-      maxArea: 0,
-      bedrooms: 0,
-      bathrooms: 0,
-      parkingSpaces: 0,
-      neighborhood: null,
-      city: null,
-      uf: null,
-      mandatoryAmenities: null,
-      desiredAmenities: null,
-      observations: null,
+      lead_id: initialData?.lead_id,
+      status: initialData?.status as "active" | "inactive" | "pending",
+      transaction_type: initialData?.transaction_type,
+      property_type_id: initialData?.property_type_id,
+      acquisition_purpose: initialData?.acquisition_purpose,
+      minBudget: initialData?.min_budget,
+      maxBudget: initialData?.max_budget,
+      minArea: initialData?.min_area ?? undefined,
+      maxArea: initialData?.max_area ?? undefined,
+      bedrooms: initialData?.bedrooms ?? undefined,
+      bathrooms: initialData?.bathrooms ?? undefined,
+      parkingSpaces: initialData?.parking_spaces ?? undefined,
+      neighborhood: initialData?.neighborhood ?? undefined,
+      city: initialData?.city ?? undefined,
+      uf: initialData?.uf ?? undefined,
+      mandatoryAmenities: initialData?.mandatory_amenities ?? {},
+      desiredAmenities: initialData?.desired_amenities ?? {},
+      observations: initialData?.observations ?? undefined,
     },
   });
+
   const steps: Step[] = [
     { label: "Informações Básicas", description: "Tipo e Propósito" },
     { label: "Orçamento e Tamanho", description: "Preço e Dimensões" },
@@ -82,7 +85,7 @@ export default function PropertyAdsForm({ initialData }: PropertyAdsFormProps) {
           <Card className="border-border bg-background">
             <CardContent className="pt-6">
               {activeStep === 0 && (
-                <BasicInfoStep form={form} propertyTypes={[]} acquisitionPurposes={[]} />
+                <BasicInfoStep form={form} propertyTypes={propertyTypes} acquisitionPurposes={[]} />
               )}
               {activeStep === 1 && <BudgetStep form={form} />}
               {activeStep === 2 && <FeaturesStep form={form} />}

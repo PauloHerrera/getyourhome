@@ -11,11 +11,12 @@ import { FormItem } from "@/components/ui/form";
 import { Select } from "@/components/ui/select";
 import { UseFormReturn } from "react-hook-form";
 import { PropertyAdFormData } from "@/schemas/property-ads-schema";
+import type { PropertyType } from "@/lib/supabase/types/db.types";
 
 type BasicInfoStepProps = {
   form: UseFormReturn<PropertyAdFormData>;
   propertyTypes: PropertyType[];
-  acquisitionPurposes: AcquisitionPurpose[];
+  acquisitionPurposes: string[];
 };
 
 export default function BasicInfoStep({
@@ -65,8 +66,8 @@ export default function BasicInfoStep({
               </FormControl>
               <SelectContent>
                 {acquisitionPurposes.map((purpose) => (
-                  <SelectItem key={purpose.value} value={purpose.value}>
-                    {purpose.label}
+                  <SelectItem key={purpose} value={purpose}>
+                    {purpose}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -81,7 +82,7 @@ export default function BasicInfoStep({
 
       <FormField
         control={form.control}
-        name="propertyType"
+        name="property_type_id"
         render={({ field }) => (
           <FormItem>
             <FormLabel className="text-custom-dark-gray">Tipo de Propriedade</FormLabel>
